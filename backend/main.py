@@ -234,6 +234,7 @@ def multiple_operacion(operations: MultipleOperationBody):
             elif operation.operacion == "division":
                 responses.append(dividir(singleOperation))
             else:
+                logger.error(f"Se intentó realizar una operación no válida en operación múltiple: {operacion}")
                 has_error = True
                 responses.append({
                     "error": "Operacion no soportada",
@@ -244,9 +245,11 @@ def multiple_operacion(operations: MultipleOperationBody):
         except ValidationError as e:
             has_error = True
             responses.append(format_validation_errors(e.errors(), operation.operacion))
+            logger.error(f"Error de validación en operación múltiple: {format_validation_errors(e.errors(), operation.operacion)}")
         except HTTPException as e:
             has_error = True
             responses.append(e.detail)
+            logger.error(f"Error HTTP en operación múltiple: {e.detail}")
 
     status_code = 206 if has_error else 200
     return JSONResponse(content=responses, status_code=status_code)
